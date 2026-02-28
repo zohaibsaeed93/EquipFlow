@@ -1,13 +1,37 @@
 import "reflect-metadata";
 import express, { Application, Request, Response, NextFunction } from "express";
+import cookieParser from "cookie-parser";
 import { configService } from "./config/config.service";
 import { initializeDatabase } from "./config/database";
+import routes from "./src/routes";
 
 const app: Application = express();
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// CORS configuration for cookies
+app.use((req, res, next) => {
+  const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") {
+    res.sendStatus(200);
+    return;
+  }
+  next();
+});
 
 // Health check endpoint
 app.get("/health", (req: Request, res: Response) => {
@@ -17,6 +41,9 @@ app.get("/health", (req: Request, res: Response) => {
     environment: configService.nodeEnv,
   });
 });
+
+// API Routes
+app.use("/api", routes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

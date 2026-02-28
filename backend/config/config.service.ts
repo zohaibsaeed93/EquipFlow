@@ -49,7 +49,7 @@ class ConfigService {
   }
 
   private validateConfig(): Record<string, string> {
-    const requiredEnvVars = ["NODE_ENV", "PORT"];
+    const requiredEnvVars = ["NODE_ENV", "PORT", "JWT_SECRET"];
 
     // Check for DATABASE_URI or individual DB variables
     const hasDatabaseUri = !!process.env.DATABASE_URI;
@@ -126,6 +126,14 @@ class ConfigService {
 
   get isProduction(): boolean {
     return this.nodeEnv === "production";
+  }
+
+  get jwtSecret(): string {
+    return process.env.JWT_SECRET || this.get("JWT_SECRET");
+  }
+
+  get jwtExpiresIn(): string {
+    return process.env.JWT_EXPIRES_IN || "7d";
   }
 }
 
