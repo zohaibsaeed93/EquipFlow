@@ -6,6 +6,12 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
+export enum UserRole {
+  ADMIN = "admin",
+  MANAGER = "manager",
+  USER = "user",
+}
+
 @Entity("users")
 export class User {
   @PrimaryGeneratedColumn("uuid")
@@ -22,6 +28,12 @@ export class User {
 
   @Column({ nullable: true })
   email: string;
+
+  @Column({
+    type: "varchar",
+    default: UserRole.USER,
+  })
+  role: UserRole;
 
   @Column({ default: true })
   isActive: boolean;

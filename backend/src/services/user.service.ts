@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../config/database";
-import { User } from "../entities/User.entity";
+import { User, UserRole } from "../entities/User.entity";
 import bcrypt from "bcrypt";
 
 export class UserService {
@@ -18,6 +18,7 @@ export class UserService {
     name: string;
     password: string;
     email?: string;
+    role?: UserRole;
   }): Promise<User> {
     // Check if username already exists
     const existingUser = await this.userRepository.findOne({

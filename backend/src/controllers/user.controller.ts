@@ -2,17 +2,19 @@ import { Request, Response } from "express";
 import { userService } from "../services/user.service";
 import { JwtService } from "../utils/jwt.util";
 import { configService } from "../../config/config.service";
+import { UserRole } from "../entities/User.entity";
+
+const VALID_ROLES = Object.values(UserRole);
 
 export class UserController {
   /**
-   * Create a new user
+   * Public registration — always creates a "user" role
    * POST /api/users
    */
   async createUser(req: Request, res: Response): Promise<void> {
     try {
       const { username, name, password, email } = req.body;
 
-      // Validation
       if (!username || !name || !password) {
         res.status(400).json({
           error: "Missing required fields",
@@ -28,7 +30,53 @@ export class UserController {
         email,
       });
 
-      // Remove password from response
+      const { password: _, ...userResponse } = user;
+
+      res.status(201).json({
+        message: "User created successfully",
+        data: userResponse,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: "Failed to create user" });
+      }
+    }
+  }
+
+  /**
+   * Admin/Manager create user — can assign a role
+   * POST /api/users/admin
+   */
+  async adminCreateUser(req: Request, res: Response): Promise<void> {
+    try {
+      const { username, name, password, email, role } = req.body;
+
+      if (!username || !name || !password) {
+        res.status(400).json({
+          error: "Missing required fields",
+          required: ["username", "name", "password"],
+        });
+        return;
+      }
+
+      if (role && !VALID_ROLES.includes(role)) {
+        res.status(400).json({
+          error: "Invalid role",
+          allowed: VALID_ROLES,
+        });
+        return;
+      }
+
+      const user = await userService.createUser({
+        username,
+        name,
+        password,
+        email,
+        role,
+      });
+
       const { password: _, ...userResponse } = user;
 
       res.status(201).json({
@@ -245,6 +293,7 @@ export class UserController {
       const token = JwtService.generateToken({
         userId: user.id,
         username: user.username,
+        role: user.role,
       });
 
       // Set httpOnly cookie

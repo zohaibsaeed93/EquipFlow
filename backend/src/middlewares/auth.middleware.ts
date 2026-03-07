@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { JwtService } from "../utils/jwt.util";
+import { UserRole } from "../entities/User.entity";
 
 // Extend Express Request type to include user
 declare global {
@@ -8,6 +9,7 @@ declare global {
       user?: {
         userId: string;
         username: string;
+        role: UserRole;
       };
     }
   }
@@ -37,6 +39,7 @@ export const authMiddleware = (
     req.user = {
       userId: payload.userId,
       username: payload.username,
+      role: payload.role,
     };
 
     next();
@@ -47,6 +50,26 @@ export const authMiddleware = (
       res.status(401).json({ error: "Authentication failed" });
     }
   }
+};
+
+/**
+ * Authorization middleware factory — restricts access to specific roles.
+ * Must be used after authMiddleware.
+ */
+export const authorize = (...allowedRoles: UserRole[]) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      res.status(401).json({ error: "Not authenticated" });
+      return;
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      res.status(403).json({ error: "Forbidden: insufficient permissions" });
+      return;
+    }
+
+    next();
+  };
 };
 
 /**
@@ -65,6 +88,7 @@ export const optionalAuthMiddleware = (
       req.user = {
         userId: payload.userId,
         username: payload.username,
+        role: payload.role,
       };
     }
 

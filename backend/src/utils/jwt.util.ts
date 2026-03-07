@@ -1,9 +1,11 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 import { configService } from "../../config/config.service";
+import { UserRole } from "../entities/User.entity";
 
 export interface JwtPayload {
   userId: string;
   username: string;
+  role: UserRole;
 }
 
 export class JwtService {

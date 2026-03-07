@@ -1,8 +1,11 @@
+export type UserRole = "admin" | "manager" | "user";
+
 export interface User {
   id: string;
   username: string;
   name: string;
   email?: string;
+  role: UserRole;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
