@@ -4,7 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from "typeorm";
+import { UserCertification } from "./UserCertification.entity";
 
 export enum UserRole {
   ADMIN = "admin",
@@ -37,6 +39,9 @@ export class User {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @OneToMany(() => UserCertification, (uc: UserCertification) => uc.user)
+  userCertifications: UserCertification[];
 
   @CreateDateColumn()
   createdAt: Date;
