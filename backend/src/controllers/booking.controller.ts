@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { bookingService } from "../services/booking.service";
+import { bookingService, HttpError } from "../services/booking.service";
 import { UserRole } from "../entities/User.entity";
 
 export class BookingController {
@@ -9,7 +9,7 @@ export class BookingController {
    */
   async createBooking(req: Request, res: Response): Promise<void> {
     try {
-      const { slotId } = req.body;
+      const { slotId, equipmentId } = req.body;
       const bookedBy = req.user!.userId;
 
       if (!slotId) {
@@ -20,19 +20,24 @@ export class BookingController {
         return;
       }
 
-      const booking = await bookingService.bookSlot({ slotId, bookedBy });
+      const booking = await bookingService.bookSlot({
+        slotId,
+        bookedBy,
+        equipmentId,
+      });
 
       res.status(201).json({
         message: "Slot booked successfully",
         data: booking,
       });
     } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === "Slot not found") {
-          res.status(404).json({ error: error.message });
-        } else {
-          res.status(400).json({ error: error.message });
-        }
+      if (error instanceof HttpError) {
+        const payload = error.details
+          ? { error: error.message, ...error.details }
+          : { error: error.message };
+        res.status(error.statusCode).json(payload);
+      } else if (error instanceof Error) {
+        res.status(400).json({ error: error.message });
       } else {
         res.status(500).json({ error: "Failed to create booking" });
       }
@@ -79,7 +84,12 @@ export class BookingController {
         data: booking,
       });
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof HttpError) {
+        const payload = error.details
+          ? { error: error.message, ...error.details }
+          : { error: error.message };
+        res.status(error.statusCode).json(payload);
+      } else if (error instanceof Error) {
         if (error.message === "Booking not found") {
           res.status(404).json({ error: error.message });
         } else if (error.message === "Not authorized to cancel this booking") {
