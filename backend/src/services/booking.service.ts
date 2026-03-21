@@ -32,6 +32,92 @@ export class BookingService {
     this.slotRepository = AppDataSource.getRepository(AvailabilitySlot);
   }
 
+  async findNextAvailableSlots(params: {
+    equipmentIds: string[];
+    desiredStartTime: Date;
+    desiredEndTime: Date;
+    durationMs?: number;
+    searchWindowHours?: number;
+    stepMinutes?: number;
+    maxSuggestions?: number;
+    manager?: EntityManager;
+  }): Promise<Array<{ startTime: string; endTime: string }>> {
+    const {
+      equipmentIds,
+      desiredStartTime,
+      desiredEndTime,
+      durationMs,
+      searchWindowHours = 24,
+      stepMinutes = 30,
+      maxSuggestions = 3,
+      manager,
+    } = params;
+
+    if (!manager) {
+      return await AppDataSource.transaction(async (transactionManager) =>
+        this.findNextAvailableSlots({
+          ...params,
+          manager: transactionManager,
+        }),
+      );
+    }
+
+    if (equipmentIds.length === 0) {
+      return [];
+    }
+
+    const resolvedDurationMs =
+      durationMs ?? desiredEndTime.getTime() - desiredStartTime.getTime();
+
+    if (resolvedDurationMs <= 0) {
+      throw new HttpError(400, "Invalid duration for slot suggestions");
+    }
+
+    const now = new Date();
+    const stepMs = stepMinutes * 60 * 1000;
+    const searchWindowMs = searchWindowHours * 60 * 60 * 1000;
+    const suggestions: Array<{ startTime: string; endTime: string }> = [];
+
+    let cursorTime = Math.max(desiredEndTime.getTime(), now.getTime());
+    const searchEndTime = cursorTime + searchWindowMs;
+
+    while (cursorTime <= searchEndTime && suggestions.length < maxSuggestions) {
+      const candidateStart = new Date(cursorTime);
+      const candidateEnd = new Date(
+        candidateStart.getTime() + resolvedDurationMs,
+      );
+
+      if (candidateEnd.getTime() > searchEndTime) {
+        break;
+      }
+
+      try {
+        this.validateTime(candidateStart, candidateEnd);
+        this.validateFutureDate(candidateStart);
+
+        await this.validateEquipmentAvailability(
+          manager,
+          equipmentIds,
+          candidateStart,
+          candidateEnd,
+        );
+
+        suggestions.push({
+          startTime: candidateStart.toISOString(),
+          endTime: candidateEnd.toISOString(),
+        });
+      } catch (error) {
+        if (!(error instanceof HttpError) || error.statusCode !== 409) {
+          throw error;
+        }
+      }
+
+      cursorTime += stepMs;
+    }
+
+    return suggestions;
+  }
+
   private validateTime(startTime: Date, endTime: Date): void {
     if (!(startTime instanceof Date) || Number.isNaN(startTime.getTime())) {
       throw new HttpError(400, "Invalid start time");
@@ -246,15 +332,34 @@ export class BookingService {
         ...involvedEquipmentIds,
       ]);
 
-      await this.validateEquipmentAvailability(
-        manager,
-        involvedEquipmentIds,
-        slot.startTime,
-        slot.endTime,
-      );
+      try {
+        await this.validateEquipmentAvailability(
+          manager,
+          involvedEquipmentIds,
+          slot.startTime,
+          slot.endTime,
+        );
 
-      if (slot.isBooked) {
-        throw new HttpError(409, "This slot is already booked");
+        if (slot.isBooked) {
+          throw new HttpError(409, "This slot is already booked");
+        }
+      } catch (error) {
+        if (error instanceof HttpError && error.statusCode === 409) {
+          const suggestions = await this.findNextAvailableSlots({
+            manager,
+            equipmentIds: involvedEquipmentIds,
+            desiredStartTime: slot.startTime,
+            desiredEndTime: slot.endTime,
+            durationMs: slot.endTime.getTime() - slot.startTime.getTime(),
+          });
+
+          throw new HttpError(409, error.message, {
+            ...(error.details ?? {}),
+            suggestions,
+          });
+        }
+
+        throw error;
       }
 
       if (slot.userId === bookedBy) {

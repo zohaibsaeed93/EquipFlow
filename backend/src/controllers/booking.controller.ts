@@ -32,6 +32,14 @@ export class BookingController {
       });
     } catch (error) {
       if (error instanceof HttpError) {
+        if (error.details?.suggestions) {
+          res.status(error.statusCode).json({
+            error: error.message,
+            ...error.details,
+          });
+          return;
+        }
+
         const payload = error.details
           ? { error: error.message, ...error.details }
           : { error: error.message };
@@ -85,6 +93,14 @@ export class BookingController {
       });
     } catch (error) {
       if (error instanceof HttpError) {
+        if (error.details?.suggestions) {
+          res.status(error.statusCode).json({
+            error: error.message,
+            ...error.details,
+          });
+          return;
+        }
+
         const payload = error.details
           ? { error: error.message, ...error.details }
           : { error: error.message };
