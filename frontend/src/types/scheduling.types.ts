@@ -1,6 +1,8 @@
 export interface AvailabilitySlot {
   id: string;
   userId: string;
+  equipmentId?: string;
+  equipment?: Equipment;
   user?: {
     id: string;
     username: string;
@@ -34,8 +36,39 @@ export interface Booking {
 export interface CreateSlotData {
   startTime: string;
   endTime: string;
+  equipmentId?: string;
 }
 
 export interface CreateBookingData {
   slotId: string;
+  equipmentId: string;
+}
+
+export interface BookingSuggestion {
+  startTime: string;
+  endTime: string;
+}
+
+export interface Certification {
+  id: string;
+  name: string;
+}
+
+export interface EquipmentRequirement {
+  id: string;
+  certificationId: string;
+  certification?: Certification;
+}
+
+export interface Equipment {
+  id: string;
+  name: string;
+  requirements?: EquipmentRequirement[];
+  dependencies?: Equipment[];
+}
+
+export interface CreateEquipmentData {
+  name: string;
+  certificationIds?: string[];
+  dependencyIds?: string[];
 }

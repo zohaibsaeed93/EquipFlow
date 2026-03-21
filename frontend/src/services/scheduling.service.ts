@@ -4,6 +4,9 @@ import type {
   Booking,
   CreateSlotData,
   CreateBookingData,
+  Equipment,
+  Certification,
+  CreateEquipmentData,
 } from "../types/scheduling.types";
 
 const api = apiService.getAxiosInstance();
@@ -38,6 +41,32 @@ export const schedulingService = {
 
   async deleteSlot(id: string): Promise<void> {
     await api.delete(`/slots/${id}`);
+  },
+
+  // ── Equipment ─────────────────────────────────────────
+
+  async getEquipment(): Promise<Equipment[]> {
+    const res = await api.get("/equipment");
+    return res.data.data;
+  },
+
+  async createEquipment(data: CreateEquipmentData): Promise<Equipment> {
+    const res = await api.post("/equipment", data);
+    return res.data.data;
+  },
+
+  async deleteEquipment(id: string): Promise<void> {
+    await api.delete(`/equipment/${id}`);
+  },
+
+  async getCertifications(): Promise<Certification[]> {
+    const res = await api.get("/certifications");
+    return res.data.data;
+  },
+
+  async getUserCertifications(userId: string): Promise<Certification[]> {
+    const res = await api.get(`/users/${userId}/certifications`);
+    return res.data.data;
   },
 
   // ── Bookings ───────────────────────────────────────────

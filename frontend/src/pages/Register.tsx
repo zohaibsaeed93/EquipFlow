@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { Card } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
 
 export const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +11,7 @@ export const Register: React.FC = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    role: "user",
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -23,11 +26,17 @@ export const Register: React.FC = () => {
     });
   };
 
+  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFormData({
+      ...formData,
+      role: e.target.value,
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    // Validation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -46,6 +55,7 @@ export const Register: React.FC = () => {
         name: formData.name,
         password: formData.password,
         email: formData.email || undefined,
+        role: formData.role as "user" | "admin",
       });
       navigate("/dashboard");
     } catch (err: unknown) {
@@ -57,32 +67,58 @@ export const Register: React.FC = () => {
   };
 
   const inputClasses =
-    "w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 text-sm transition-colors duration-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20";
+    "w-full px-4 py-2.5 rounded-xl text-sm transition-colors duration-200";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-violet-50 px-4 py-12">
+    <div
+      className="min-h-screen flex items-center justify-center px-4 py-12"
+      style={{ backgroundColor: "var(--bg-primary)" }}
+    >
       {/* Decorative blobs */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-indigo-100/60 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-violet-100/60 blur-3xl" />
+        <div
+          className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full blur-3xl"
+          style={{ backgroundColor: "var(--accent-muted)", opacity: 0.5 }}
+        />
+        <div
+          className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full blur-3xl"
+          style={{ backgroundColor: "var(--info-muted)", opacity: 0.4 }}
+        />
       </div>
 
-      <div className="relative w-full max-w-[460px]">
-        <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8 sm:p-10">
+      <div className="relative w-full max-w-[460px] animate-slide-up">
+        <Card className="p-8 sm:p-10">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 text-white font-bold text-lg mb-4">
-              S
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white font-bold text-lg mb-4 shadow-lg shadow-indigo-500/20">
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Sign up to get started with scheduling
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Join <span style={{ color: "var(--accent)" }}>EquipFlow</span>
+            </h1>
+            <p
+              className="text-sm mt-1"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              Create your account to start booking equipment
             </p>
           </div>
 
           {/* Error */}
           {error && (
-            <div className="mb-5 flex items-start gap-2 rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700">
+            <div
+              className="mb-5 flex items-start gap-2 rounded-lg px-4 py-3 text-sm"
+              style={{
+                backgroundColor: "var(--danger-muted)",
+                color: "var(--danger)",
+                border: "1px solid var(--danger-muted)",
+              }}
+            >
               <span className="mt-0.5 shrink-0">&#9888;</span>
               <span>{error}</span>
             </div>
@@ -93,9 +129,10 @@ export const Register: React.FC = () => {
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm font-medium text-gray-700 mb-1.5"
+                className="block text-sm font-medium mb-1.5"
+                style={{ color: "var(--text-secondary)" }}
               >
-                Username <span className="text-rose-400">*</span>
+                Username <span style={{ color: "var(--danger)" }}>*</span>
               </label>
               <input
                 id="username"
@@ -113,9 +150,10 @@ export const Register: React.FC = () => {
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700 mb-1.5"
+                className="block text-sm font-medium mb-1.5"
+                style={{ color: "var(--text-secondary)" }}
               >
-                Full Name <span className="text-rose-400">*</span>
+                Full Name <span style={{ color: "var(--danger)" }}>*</span>
               </label>
               <input
                 id="name"
@@ -133,10 +171,16 @@ export const Register: React.FC = () => {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1.5"
+                className="block text-sm font-medium mb-1.5"
+                style={{ color: "var(--text-secondary)" }}
               >
                 Email{" "}
-                <span className="text-gray-400 font-normal">(optional)</span>
+                <span
+                  style={{ color: "var(--text-tertiary)" }}
+                  className="font-normal"
+                >
+                  (optional)
+                </span>
               </label>
               <input
                 id="email"
@@ -153,9 +197,10 @@ export const Register: React.FC = () => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1.5"
+                className="block text-sm font-medium mb-1.5"
+                style={{ color: "var(--text-secondary)" }}
               >
-                Password <span className="text-rose-400">*</span>
+                Password <span style={{ color: "var(--danger)" }}>*</span>
               </label>
               <input
                 id="password"
@@ -173,9 +218,11 @@ export const Register: React.FC = () => {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 mb-1.5"
+                className="block text-sm font-medium mb-1.5"
+                style={{ color: "var(--text-secondary)" }}
               >
-                Confirm Password <span className="text-rose-400">*</span>
+                Confirm Password{" "}
+                <span style={{ color: "var(--danger)" }}>*</span>
               </label>
               <input
                 id="confirmPassword"
@@ -190,51 +237,53 @@ export const Register: React.FC = () => {
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-2.5 px-4 mt-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm shadow-indigo-200"
-            >
-              {isLoading ? (
-                <span className="inline-flex items-center gap-2">
-                  <svg
-                    className="animate-spin h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
-                  Creating Account...
-                </span>
-              ) : (
-                "Sign Up"
-              )}
-            </button>
+            <div>
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium mb-1.5"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                Role
+              </label>
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleRoleChange}
+                disabled={isLoading}
+                className={inputClasses}
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+              <p
+                className="mt-1 text-xs"
+                style={{ color: "var(--text-tertiary)" }}
+              >
+                Admin accounts may require approval.
+              </p>
+            </div>
+
+            <Button type="submit" isLoading={isLoading} className="w-full mt-2">
+              {isLoading ? "Creating Account..." : "Sign Up"}
+            </Button>
           </form>
 
           {/* Footer */}
-          <p className="mt-6 text-center text-sm text-gray-500">
+          <p
+            className="mt-6 text-center text-sm"
+            style={{ color: "var(--text-tertiary)" }}
+          >
             Already have an account?{" "}
             <Link
               to="/login"
-              className="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors"
+              className="font-semibold transition-colors"
+              style={{ color: "var(--accent)" }}
             >
               Sign in
             </Link>
           </p>
-        </div>
+        </Card>
       </div>
     </div>
   );

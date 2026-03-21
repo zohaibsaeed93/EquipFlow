@@ -1,4 +1,1 @@
-/* App-level resets — keep minimal, Tailwind handles the rest */
-#root {
-  min-height: 100vh;
-}
+/* App-level styles merged into index.css */

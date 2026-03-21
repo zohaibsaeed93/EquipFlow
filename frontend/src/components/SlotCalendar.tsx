@@ -14,6 +14,7 @@ interface SlotCalendarProps {
   isLoading: boolean;
   onSlotClick: (slot: AvailabilitySlot) => void;
   onEmptyClick?: (date: Date) => void;
+  equipmentMap?: Record<string, string>;
 }
 
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 7); // 7 AM – 7 PM
@@ -23,6 +24,7 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
   isLoading,
   onSlotClick,
   onEmptyClick,
+  equipmentMap,
 }) => {
   const [currentWeekStart, setCurrentWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 }),
@@ -47,12 +49,18 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
-        <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-100 rounded-lg w-52" />
+      <div
+        className="rounded-2xl border p-8"
+        style={{
+          borderColor: "var(--card-border)",
+          backgroundColor: "var(--card-bg)",
+        }}
+      >
+        <div className="space-y-4">
+          <div className="skeleton h-6 w-52" />
           <div className="grid grid-cols-8 gap-2">
             {Array.from({ length: 64 }).map((_, i) => (
-              <div key={i} className="h-12 bg-gray-50 rounded-lg" />
+              <div key={i} className="skeleton h-12" />
             ))}
           </div>
         </div>
@@ -61,46 +69,68 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+    <div
+      className="overflow-hidden rounded-2xl border"
+      style={{
+        borderColor: "var(--card-border)",
+        backgroundColor: "var(--card-bg)",
+        boxShadow: "0 4px 16px var(--card-shadow)",
+      }}
+    >
       {/* Header with navigation */}
-      <div className="flex items-center justify-between px-6 py-4 bg-gray-50/50 border-b border-gray-100">
+      <div
+        className="flex items-center justify-between px-6 py-4 border-b"
+        style={{
+          backgroundColor: "var(--bg-secondary)",
+          borderColor: "var(--border)",
+        }}
+      >
         <button
           onClick={() => setCurrentWeekStart((p) => subWeeks(p, 1))}
-          className="p-2 text-gray-400 hover:text-gray-900 hover:bg-white rounded-lg transition-all duration-200 shadow-sm bg-white/80"
+          className="p-2 rounded-lg transition-all duration-200"
+          style={{
+            color: "var(--text-tertiary)",
+            backgroundColor: "var(--card-bg)",
+            border: "1px solid var(--border)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--text-primary)";
+            e.currentTarget.style.borderColor = "var(--border-hover)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--text-tertiary)";
+            e.currentTarget.style.borderColor = "var(--border)";
+          }}
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 19l-7-7 7-7"
-            />
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h3 className="text-base font-semibold text-gray-900">
+        <h3
+          className="text-base font-semibold"
+          style={{ color: "var(--text-primary)" }}
+        >
           {format(days[0], "MMM d")} – {format(days[6], "MMM d, yyyy")}
         </h3>
         <button
           onClick={() => setCurrentWeekStart((p) => addWeeks(p, 1))}
-          className="p-2 text-gray-400 hover:text-gray-900 hover:bg-white rounded-lg transition-all duration-200 shadow-sm bg-white/80"
+          className="p-2 rounded-lg transition-all duration-200"
+          style={{
+            color: "var(--text-tertiary)",
+            backgroundColor: "var(--card-bg)",
+            border: "1px solid var(--border)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--text-primary)";
+            e.currentTarget.style.borderColor = "var(--border-hover)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--text-tertiary)";
+            e.currentTarget.style.borderColor = "var(--border)";
+          }}
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 5l7 7-7 7"
-            />
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>
         </button>
       </div>
@@ -109,24 +139,38 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
       <div className="overflow-x-auto">
         <div className="min-w-[720px]">
           {/* Day column headers */}
-          <div className="grid grid-cols-[72px_repeat(7,1fr)] border-b border-gray-100">
+          <div
+            className="grid grid-cols-[72px_repeat(7,1fr)] border-b"
+            style={{ borderColor: "var(--border)" }}
+          >
             <div className="p-3" />
             {days.map((day) => {
               const isToday = isSameDay(day, new Date());
               return (
                 <div
                   key={day.toISOString()}
-                  className={`py-3 px-2 text-center border-l border-gray-100 ${
-                    isToday ? "bg-indigo-50/60" : ""
-                  }`}
+                  className="py-3 px-2 text-center border-l"
+                  style={{
+                    borderColor: "var(--border)",
+                    backgroundColor: isToday
+                      ? "var(--accent-muted)"
+                      : "transparent",
+                  }}
                 >
-                  <div className="text-[11px] font-medium text-gray-400 uppercase tracking-wide">
+                  <div
+                    className="text-[11px] font-medium uppercase tracking-wide"
+                    style={{ color: "var(--text-tertiary)" }}
+                  >
                     {format(day, "EEE")}
                   </div>
                   <div
-                    className={`inline-flex items-center justify-center w-8 h-8 mt-0.5 rounded-full text-sm font-semibold ${
-                      isToday ? "bg-indigo-600 text-white" : "text-gray-800"
-                    }`}
+                    className="inline-flex items-center justify-center w-8 h-8 mt-0.5 rounded-full text-sm font-semibold"
+                    style={{
+                      backgroundColor: isToday
+                        ? "var(--accent)"
+                        : "transparent",
+                      color: isToday ? "#fff" : "var(--text-primary)",
+                    }}
                   >
                     {format(day, "d")}
                   </div>
@@ -139,9 +183,13 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
           {HOURS.map((hour) => (
             <div
               key={hour}
-              className="grid grid-cols-[72px_repeat(7,1fr)] border-b border-gray-50 last:border-0"
+              className="grid grid-cols-[72px_repeat(7,1fr)] border-b last:border-0"
+              style={{ borderColor: "var(--divider)" }}
             >
-              <div className="p-2 text-[11px] text-gray-400 text-right pr-4 pt-3 font-medium">
+              <div
+                className="p-2 text-[11px] text-right pr-4 pt-3 font-medium"
+                style={{ color: "var(--text-tertiary)" }}
+              >
                 {hour > 12
                   ? `${hour - 12} PM`
                   : hour === 12
@@ -162,34 +210,63 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
                         onEmptyClick(d);
                       }
                     }}
-                    className={`border-l border-gray-50 min-h-[52px] p-1 transition-colors duration-200 ${
-                      cellSlots.length === 0
-                        ? "hover:bg-indigo-50/40 cursor-pointer"
-                        : ""
-                    }`}
+                    className="border-l min-h-[52px] p-1 transition-colors duration-200"
+                    style={{
+                      borderColor: "var(--divider)",
+                      cursor: cellSlots.length === 0 ? "pointer" : "default",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (cellSlots.length === 0) {
+                        e.currentTarget.style.backgroundColor =
+                          "var(--accent-muted)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }}
                   >
-                    {cellSlots.map((slot) => (
-                      <button
-                        key={slot.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSlotClick(slot);
-                        }}
-                        className={`w-full text-left text-[11px] px-2 py-1.5 rounded-lg mb-0.5 truncate font-medium transition-all duration-200 border ${
-                          slot.isBooked
-                            ? "bg-rose-50 text-rose-700 border-rose-100 hover:bg-rose-100 hover:shadow-sm"
-                            : "bg-sky-50 text-sky-700 border-sky-100 hover:bg-sky-100 hover:shadow-sm"
-                        }`}
-                      >
-                        {format(new Date(slot.startTime), "h:mm a")}
-                        {slot.isBooked ? " · Booked" : ""}
-                        {!slot.isBooked && slot.user && (
-                          <span className="ml-1 opacity-60">
-                            · {slot.user.name}
-                          </span>
-                        )}
-                      </button>
-                    ))}
+                    {cellSlots.map((slot) => {
+                      const equipmentLabel =
+                        slot.equipment?.name ||
+                        (slot.equipmentId
+                          ? equipmentMap?.[slot.equipmentId]
+                          : undefined);
+
+                      return (
+                        <button
+                          key={slot.id}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSlotClick(slot);
+                          }}
+                          className="w-full text-left text-[11px] px-2 py-1.5 rounded-lg mb-0.5 truncate font-medium transition-all duration-200 border"
+                          style={{
+                            backgroundColor: slot.isBooked
+                              ? "var(--danger-muted)"
+                              : "var(--success-muted)",
+                            color: slot.isBooked
+                              ? "var(--danger)"
+                              : "var(--success)",
+                            borderColor: slot.isBooked
+                              ? "var(--danger-muted)"
+                              : "var(--success-muted)",
+                          }}
+                        >
+                          {format(new Date(slot.startTime), "h:mm a")}
+                          {slot.isBooked ? " · Booked" : ""}
+                          {equipmentLabel && (
+                            <span className="ml-1 opacity-70">
+                              · {equipmentLabel}
+                            </span>
+                          )}
+                          {!slot.isBooked && slot.user && (
+                            <span className="ml-1 opacity-60">
+                              · {slot.user.name}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 );
               })}

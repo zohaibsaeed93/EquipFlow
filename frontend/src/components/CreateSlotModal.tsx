@@ -1,17 +1,22 @@
 import React, { useState } from "react";
 import { useCreateSlot } from "../hooks/useScheduling";
 import toast from "react-hot-toast";
+import { Modal } from "./ui/Modal";
+import { Button } from "./ui/Button";
+import type { Equipment } from "../types/scheduling.types";
 
 interface CreateSlotModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultDate?: Date;
+  equipmentOptions?: Equipment[];
 }
 
 export const CreateSlotModal: React.FC<CreateSlotModalProps> = ({
   isOpen,
   onClose,
   defaultDate,
+  equipmentOptions = [],
 }) => {
   const createSlot = useCreateSlot();
 
@@ -44,6 +49,13 @@ export const CreateSlotModal: React.FC<CreateSlotModalProps> = ({
 
   const [startTime, setStartTime] = useState(getDefaultStart);
   const [endTime, setEndTime] = useState(getDefaultEnd);
+  const [equipmentId, setEquipmentId] = useState(equipmentOptions[0]?.id || "");
+
+  React.useEffect(() => {
+    if (!equipmentId && equipmentOptions.length > 0) {
+      setEquipmentId(equipmentOptions[0].id);
+    }
+  }, [equipmentOptions, equipmentId]);
 
   if (!isOpen) return null;
 
@@ -67,6 +79,7 @@ export const CreateSlotModal: React.FC<CreateSlotModalProps> = ({
       await createSlot.mutateAsync({
         startTime: start.toISOString(),
         endTime: end.toISOString(),
+        equipmentId: equipmentId || undefined,
       });
       toast.success("Availability slot created!");
       onClose();
@@ -77,125 +90,126 @@ export const CreateSlotModal: React.FC<CreateSlotModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div
-        className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-gray-100">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
-                <svg
-                  className="w-5 h-5 text-indigo-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Create Availability Slot
-              </h2>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+    <Modal isOpen={isOpen} onClose={onClose} className="max-w-md">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ backgroundColor: "var(--accent-muted)" }}
+          >
+            <svg
+              className="w-5 h-5"
+              style={{ color: "var(--accent)" }}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
           </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Start Time
-              </label>
-              <input
-                type="datetime-local"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                End Time
-              </label>
-              <input
-                type="datetime-local"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
-                required
-              />
-            </div>
-
-            <div className="flex gap-3 pt-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={createSlot.isPending}
-                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition-all duration-200 shadow-sm shadow-indigo-200"
-              >
-                {createSlot.isPending ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg
-                      className="animate-spin w-4 h-4"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      />
-                    </svg>
-                    Creating...
-                  </span>
-                ) : (
-                  "Create Slot"
-                )}
-              </button>
-            </div>
-          </form>
+          <h2
+            className="text-lg font-semibold"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Create Availability Slot
+          </h2>
         </div>
+        <button
+          onClick={onClose}
+          className="p-1.5 rounded-lg transition-colors"
+          style={{ color: "var(--text-tertiary)" }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "var(--bg-secondary)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+          }}
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
-    </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label
+            className="block text-sm font-medium mb-1.5"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            Equipment
+          </label>
+          <select
+            value={equipmentId}
+            onChange={(event) => setEquipmentId(event.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-xl text-sm transition-colors"
+          >
+            <option value="">Select equipment</option>
+            {equipmentOptions.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs" style={{ color: "var(--text-tertiary)" }}>
+            Associate this slot with specific equipment.
+          </p>
+        </div>
+        <div>
+          <label
+            className="block text-sm font-medium mb-1.5"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            Start Time
+          </label>
+          <input
+            type="datetime-local"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-xl text-sm transition-colors"
+            required
+          />
+        </div>
+
+        <div>
+          <label
+            className="block text-sm font-medium mb-1.5"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            End Time
+          </label>
+          <input
+            type="datetime-local"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-xl text-sm transition-colors"
+            required
+          />
+        </div>
+
+        <div className="flex gap-3 pt-3">
+          <Button
+            type="button"
+            onClick={onClose}
+            variant="secondary"
+            className="flex-1"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            isLoading={createSlot.isPending}
+            className="flex-1"
+          >
+            {createSlot.isPending ? "Creating..." : "Create Slot"}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 };

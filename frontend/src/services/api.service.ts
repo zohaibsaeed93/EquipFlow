@@ -50,6 +50,7 @@ class ApiService {
     name: string;
     password: string;
     email?: string;
+    role?: string;
   }) {
     const response = await this.api.post("/users", userData);
     return response.data;

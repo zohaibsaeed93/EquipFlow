@@ -3,6 +3,7 @@ import { schedulingService } from "../services/scheduling.service";
 import type {
   CreateSlotData,
   CreateBookingData,
+  CreateEquipmentData,
 } from "../types/scheduling.types";
 
 // ── Query Keys ───────────────────────────────────────────
@@ -16,6 +17,12 @@ export const slotKeys = {
 
 export const bookingKeys = {
   all: ["bookings"] as const,
+};
+
+export const equipmentKeys = {
+  all: ["equipment"] as const,
+  certifications: ["certifications"] as const,
+  userCerts: (userId: string) => ["certifications", "user", userId] as const,
 };
 
 // ── Slot Hooks ───────────────────────────────────────────
@@ -58,6 +65,52 @@ export function useDeleteSlot() {
     mutationFn: (id: string) => schedulingService.deleteSlot(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["slots"] });
+    },
+  });
+}
+
+// ── Equipment Hooks ─────────────────────────────────────
+
+export function useEquipment() {
+  return useQuery({
+    queryKey: equipmentKeys.all,
+    queryFn: () => schedulingService.getEquipment(),
+  });
+}
+
+export function useCertifications() {
+  return useQuery({
+    queryKey: equipmentKeys.certifications,
+    queryFn: () => schedulingService.getCertifications(),
+  });
+}
+
+export function useUserCertifications(userId: string) {
+  return useQuery({
+    queryKey: equipmentKeys.userCerts(userId),
+    queryFn: () => schedulingService.getUserCertifications(userId),
+    enabled: !!userId,
+  });
+}
+
+export function useCreateEquipment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateEquipmentData) =>
+      schedulingService.createEquipment(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: equipmentKeys.all });
+      qc.invalidateQueries({ queryKey: equipmentKeys.certifications });
+    },
+  });
+}
+
+export function useDeleteEquipment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => schedulingService.deleteEquipment(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: equipmentKeys.all });
     },
   });
 }
