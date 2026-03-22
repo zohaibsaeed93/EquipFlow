@@ -184,7 +184,7 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: "var(--bg-primary)" }}>
       <Navbar />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full max-w-[1400px] xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome header */}
         <div className="mb-8">
           <h1
@@ -202,12 +202,12 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Stat cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {stats.map((stat) => (
             <button
               key={stat.label}
               onClick={() => navigate(stat.to)}
-              className="group relative rounded-2xl border p-5 text-left transition-all duration-300 hover:-translate-y-0.5"
+              className="group relative rounded-2xl border p-6 text-left transition-all duration-300 hover:-translate-y-0.5"
               style={{
                 backgroundColor: "var(--card-bg)",
                 borderColor: "var(--card-border)",

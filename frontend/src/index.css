@@ -189,7 +189,6 @@ button {
   background: transparent;
   cursor: pointer;
   font-family: inherit;
-  padding: 0;
 }
 
 button:disabled {

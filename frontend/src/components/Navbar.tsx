@@ -49,7 +49,7 @@ export const Navbar: React.FC = () => {
         borderColor: "var(--nav-border)",
       }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[1400px] xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
         <div className="flex items-center justify-between h-16">
           {/* Left: Logo */}
           <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Center: Nav links */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-2">
             {links.map((link) => {
               const active = location.pathname === link.to;
               return (
@@ -211,7 +211,7 @@ export const Navbar: React.FC = () => {
       {/* Mobile menu */}
       {mobileOpen && (
         <div
-          className="md:hidden border-t px-4 pb-4 pt-2 space-y-1 animate-slide-down"
+          className="md:hidden border-t px-6 pb-5 pt-3 space-y-2 animate-slide-down"
           style={{
             borderColor: "var(--border)",
             backgroundColor: "var(--card-bg)",
@@ -224,7 +224,7 @@ export const Navbar: React.FC = () => {
                 navigate(link.to);
                 setMobileOpen(false);
               }}
-              className="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              className="block w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
               style={{
                 color:
                   location.pathname === link.to
