@@ -1,9 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { schedulingService } from "../services/scheduling.service";
 import type {
+  AvailabilitySlot,
+  Booking,
   CreateSlotData,
   CreateBookingData,
   CreateEquipmentData,
+  Equipment,
 } from "../types/scheduling.types";
 
 // ── Query Keys ───────────────────────────────────────────
@@ -98,7 +101,11 @@ export function useCreateEquipment() {
   return useMutation({
     mutationFn: (data: CreateEquipmentData) =>
       schedulingService.createEquipment(data),
-    onSuccess: () => {
+    onSuccess: (createdEquipment) => {
+      qc.setQueryData<Equipment[]>(equipmentKeys.all, (current = []) => [
+        ...current,
+        createdEquipment,
+      ]);
       qc.invalidateQueries({ queryKey: equipmentKeys.all });
       qc.invalidateQueries({ queryKey: equipmentKeys.certifications });
     },
@@ -109,7 +116,10 @@ export function useDeleteEquipment() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => schedulingService.deleteEquipment(id),
-    onSuccess: () => {
+    onSuccess: (_, deletedId) => {
+      qc.setQueryData<Equipment[]>(equipmentKeys.all, (current = []) =>
+        current.filter((item) => item.id !== deletedId),
+      );
       qc.invalidateQueries({ queryKey: equipmentKeys.all });
     },
   });
@@ -129,7 +139,22 @@ export function useCreateBooking() {
   return useMutation({
     mutationFn: (data: CreateBookingData) =>
       schedulingService.createBooking(data),
-    onSuccess: () => {
+    onSuccess: (createdBooking, variables) => {
+      qc.setQueryData<Booking[]>(bookingKeys.all, (current = []) => {
+        const next = current.filter(
+          (booking) => booking.id !== createdBooking.id,
+        );
+        return [createdBooking, ...next];
+      });
+
+      qc.setQueriesData<AvailabilitySlot[]>(
+        { queryKey: slotKeys.all },
+        (current) =>
+          (current || []).map((slot) =>
+            slot.id === variables.slotId ? { ...slot, isBooked: true } : slot,
+          ),
+      );
+
       qc.invalidateQueries({ queryKey: ["slots"] });
       qc.invalidateQueries({ queryKey: ["bookings"] });
     },
