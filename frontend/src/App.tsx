@@ -51,7 +51,15 @@ function App() {
               <Route
                 path="/book"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={["user", "manager"]}>
+                    <BookSlot />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/create-slot"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
                     <BookSlot />
                   </ProtectedRoute>
                 }

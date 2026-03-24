@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { slotService } from "../services/slot.service";
-import { UserRole } from "../entities/User.entity";
 
 export class SlotController {
   /**
@@ -94,21 +93,14 @@ export class SlotController {
    */
   async deleteSlot(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.user!.userId;
-      const isAdmin = req.user!.role === UserRole.ADMIN;
-
-      await slotService.deleteSlot(req.params.id as string, userId, isAdmin);
+      console.log(req.user);
+      const id = req.params.id as string;
+      await slotService.deleteSlot(id);
 
       res.status(200).json({ message: "Slot deleted successfully" });
     } catch (error) {
       if (error instanceof Error) {
-        if (error.message === "Slot not found") {
-          res.status(404).json({ error: error.message });
-        } else if (error.message === "Not authorized to delete this slot") {
-          res.status(403).json({ error: error.message });
-        } else {
-          res.status(400).json({ error: error.message });
-        }
+        res.status(400).json({ error: error.message });
       } else {
         res.status(500).json({ error: "Failed to delete slot" });
       }

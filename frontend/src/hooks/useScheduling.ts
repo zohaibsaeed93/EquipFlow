@@ -66,7 +66,10 @@ export function useDeleteSlot() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => schedulingService.deleteSlot(id),
-    onSuccess: () => {
+    onSuccess: (_, deletedId) => {
+      qc.setQueryData<AvailabilitySlot[]>(slotKeys.all, (old = []) =>
+        old.filter((slot) => slot.id !== deletedId),
+      );
       qc.invalidateQueries({ queryKey: ["slots"] });
     },
   });

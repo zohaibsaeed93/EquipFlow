@@ -21,18 +21,17 @@ export const Navbar: React.FC = () => {
 
   const links = isAdmin
     ? [
-      { to: "/dashboard", label: "Dashboard", icon: "grid" },
-      { to: "/book", label: "Book Equipment", icon: "calendar" },
-      { to: "/bookings", label: "My Bookings", icon: "list" },
-      { to: "/availability", label: "Availability", icon: "clock" },
-      { to: "/equipment", label: "Equipment", icon: "wrench" },
-    ]
+        { to: "/dashboard", label: "Dashboard", icon: "grid" },
+        { to: "/create-slot", label: "Create Slot", icon: "calendar" },
+        { to: "/bookings", label: "All Slots", icon: "list" },
+        { to: "/equipment", label: "Equipment", icon: "wrench" },
+      ]
     : [
-      { to: "/dashboard", label: "Dashboard", icon: "grid" },
-      { to: "/book", label: "Book Equipment", icon: "calendar" },
-      { to: "/bookings", label: "My Bookings", icon: "list" },
-      { to: "/availability", label: "Availability", icon: "clock" },
-    ];
+        { to: "/dashboard", label: "Dashboard", icon: "grid" },
+        { to: "/book", label: "Book Equipment", icon: "calendar" },
+        { to: "/bookings", label: "My Bookings", icon: "list" },
+        { to: "/availability", label: "Availability", icon: "clock" },
+      ];
 
   const initials = (user?.name || "U")
     .split(" ")
@@ -58,8 +57,18 @@ export const Navbar: React.FC = () => {
               className="flex items-center gap-2.5 group"
             >
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 transition-transform duration-200 group-hover:scale-105">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
                 </svg>
               </span>
               <span
@@ -84,9 +93,7 @@ export const Navbar: React.FC = () => {
                     backgroundColor: active
                       ? "var(--accent-muted)"
                       : "transparent",
-                    color: active
-                      ? "var(--accent)"
-                      : "var(--text-tertiary)",
+                    color: active ? "var(--accent)" : "var(--text-tertiary)",
                   }}
                   onMouseEnter={(e) => {
                     if (!active) {
@@ -134,12 +141,32 @@ export const Navbar: React.FC = () => {
               title={isDark ? "Switch to light mode" : "Switch to dark mode"}
             >
               {isDark ? (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+                  />
                 </svg>
               ) : (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
+                  />
                 </svg>
               )}
             </button>
@@ -171,8 +198,18 @@ export const Navbar: React.FC = () => {
               variant="ghost"
               className="ml-1 hidden sm:inline-flex"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+                />
               </svg>
             </Button>
 
@@ -239,10 +276,27 @@ export const Navbar: React.FC = () => {
               {link.label}
             </button>
           ))}
-          <div className="pt-2 border-t" style={{ borderColor: "var(--border)" }}>
-            <Button onClick={handleLogout} variant="ghost" className="w-full justify-start">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+          <div
+            className="pt-2 border-t"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <Button
+              onClick={handleLogout}
+              variant="ghost"
+              className="w-full justify-start"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+                />
               </svg>
               Logout
             </Button>

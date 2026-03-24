@@ -1,5 +1,9 @@
 import axios from "axios";
-import type { AxiosInstance, AxiosResponse } from "axios";
+import type {
+  AxiosInstance,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3000/api";
@@ -16,6 +20,14 @@ class ApiService {
       withCredentials: true, // Enable sending cookies
     });
 
+    this.api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
+
     // Response interceptor to handle errors
     this.api.interceptors.response.use(
       (response: AxiosResponse) => response,
@@ -24,6 +36,7 @@ class ApiService {
         if (err.response?.status === 401) {
           // Token expired or invalid - redirect to login
           localStorage.removeItem("user");
+          localStorage.removeItem("token");
           window.location.href = "/login";
         }
         return Promise.reject(error);

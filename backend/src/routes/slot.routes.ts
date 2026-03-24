@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { slotController } from "../controllers/slot.controller";
-import { authMiddleware } from "../middlewares/auth.middleware";
+import { authMiddleware, authorize } from "../middlewares/auth.middleware";
+import { UserRole } from "../entities/User.entity";
 
 const router = Router();
 
@@ -17,6 +18,10 @@ router.get("/", (req, res) => slotController.getSlots(req, res));
 router.get("/:id", (req, res) => slotController.getSlotById(req, res));
 
 // Delete a slot
-router.delete("/:id", (req, res) => slotController.deleteSlot(req, res));
+router.delete(
+	"/:id",
+	authorize(UserRole.ADMIN),
+	(req, res) => slotController.deleteSlot(req, res),
+);
 
 export default router;

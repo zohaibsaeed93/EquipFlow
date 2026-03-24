@@ -59,7 +59,7 @@ export class SlotService {
         isBooked: false,
         startTime: MoreThan(new Date()),
       },
-      relations: ["user"],
+      relations: ["user", "equipment"],
       order: { startTime: "ASC" },
     });
   }
@@ -75,7 +75,7 @@ export class SlotService {
 
     return await this.slotRepository.find({
       where,
-      relations: ["user"],
+      relations: ["user", "equipment"],
       order: { startTime: "ASC" },
     });
   }
@@ -86,33 +86,15 @@ export class SlotService {
   async getSlotById(id: string): Promise<AvailabilitySlot | null> {
     return await this.slotRepository.findOne({
       where: { id },
-      relations: ["user"],
+      relations: ["user", "equipment"],
     });
   }
 
   /**
-   * Delete a slot (only owner or admin)
+   * Delete a slot by ID
    */
-  async deleteSlot(
-    id: string,
-    userId: string,
-    isAdmin: boolean,
-  ): Promise<void> {
-    const slot = await this.slotRepository.findOne({ where: { id } });
-
-    if (!slot) {
-      throw new Error("Slot not found");
-    }
-
-    if (slot.userId !== userId && !isAdmin) {
-      throw new Error("Not authorized to delete this slot");
-    }
-
-    if (slot.isBooked) {
-      throw new Error("Cannot delete a booked slot. Cancel the booking first.");
-    }
-
-    await this.slotRepository.remove(slot);
+  async deleteSlot(id: string): Promise<void> {
+    await this.slotRepository.delete(id);
   }
 }
 

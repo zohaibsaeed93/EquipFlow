@@ -30,6 +30,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } catch {
           // Session invalid, clear stored user
           localStorage.removeItem("user");
+          localStorage.removeItem("token");
           setUser(null);
         }
       }
@@ -45,11 +46,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         username,
         password,
       );
-      const { user: userData } = response.data;
+      const { user: userData, token } = response.data;
 
       // Store in state and localStorage
       setUser(userData);
       localStorage.setItem("user", JSON.stringify(userData));
+      if (token) {
+        localStorage.setItem("token", token);
+      }
     } catch (error: unknown) {
       const err = error as { response?: { data?: { error?: string } } };
       throw new Error(err.response?.data?.error || "Login failed");
@@ -76,6 +80,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setUser(null);
       localStorage.removeItem("user");
+      localStorage.removeItem("token");
     }
   };
 
