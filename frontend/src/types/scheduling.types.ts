@@ -41,7 +41,6 @@ export interface CreateSlotData {
 
 export interface CreateBookingData {
   slotId: string;
-  equipmentId: string;
 }
 
 export interface BookingSuggestion {

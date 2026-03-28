@@ -21,6 +21,8 @@ export const MyBookings: React.FC = () => {
   const { data: equipment = [] } = useEquipment();
   const deleteSlot = useDeleteSlot();
 
+  console.log("MyBookings - bookings:", bookings);
+
   const handleDeleteSlot = async (slotId: string, isBooked: boolean) => {
     if (isBooked) {
       return;

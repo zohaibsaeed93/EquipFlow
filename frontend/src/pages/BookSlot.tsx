@@ -59,16 +59,16 @@ export const BookSlot: React.FC = () => {
   }, [slots, selectedEquipment, isAdmin]);
 
   const handleSlotClick = (slot: AvailabilitySlot) => {
-    if (isAdmin) {
-      return;
-    }
-    if (!slot.isBooked) {
-      setSelectedSlot(slot);
-      setBookingModalOpen(true);
-    }
+    if (isAdmin) return;
+
+    setSelectedSlot(slot);
+    setBookingModalOpen(true);
   };
 
   const handleEmptyClick = (date: Date) => {
+    if (!isAdmin) {
+      return;
+    }
     setCreateDefaultDate(date);
     setCreateModalOpen(true);
   };
@@ -318,7 +318,7 @@ export const BookSlot: React.FC = () => {
               slots={filteredSlots}
               isLoading={isLoading}
               onSlotClick={handleSlotClick}
-              onEmptyClick={handleEmptyClick}
+              onEmptyClick={isAdmin ? handleEmptyClick : undefined}
               equipmentMap={equipmentMap}
             />
           </div>
@@ -327,26 +327,22 @@ export const BookSlot: React.FC = () => {
         {!isAdmin && (
           <BookingModal
             isOpen={bookingModalOpen}
-            onClose={() => {
-              setBookingModalOpen(false);
-              setSelectedSlot(null);
-            }}
+            onClose={() => setBookingModalOpen(false)}
             slot={selectedSlot}
-            allSlots={filteredSlots}
-            equipment={equipment}
-            userCertifications={userCertifications}
           />
         )}
 
-        <CreateSlotModal
-          isOpen={createModalOpen}
-          onClose={() => {
-            setCreateModalOpen(false);
-            setCreateDefaultDate(undefined);
-          }}
-          defaultDate={createDefaultDate}
-          equipmentOptions={equipment}
-        />
+        {isAdmin && (
+          <CreateSlotModal
+            isOpen={createModalOpen}
+            onClose={() => {
+              setCreateModalOpen(false);
+              setCreateDefaultDate(undefined);
+            }}
+            defaultDate={createDefaultDate}
+            equipmentOptions={equipment}
+          />
+        )}
       </div>
     </div>
   );

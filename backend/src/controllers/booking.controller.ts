@@ -10,7 +10,10 @@ export class BookingController {
   async createBooking(req: Request, res: Response): Promise<void> {
     try {
       const { slotId, equipmentId } = req.body;
-      const bookedBy = req.user!.userId;
+      const userId = req.user!.userId;
+
+      console.log("CREATE BOOKING - userId:", userId);
+      console.log("CREATE BOOKING - slotId:", slotId);
 
       if (!slotId) {
         res.status(400).json({
@@ -22,9 +25,11 @@ export class BookingController {
 
       const booking = await bookingService.bookSlot({
         slotId,
-        bookedBy,
+        bookedBy: userId,
         equipmentId,
       });
+
+      console.log("CREATE BOOKING - booking created:", booking.id, "bookedBy:", booking.bookedBy);
 
       res.status(201).json({
         message: "Slot booked successfully",
@@ -62,12 +67,18 @@ export class BookingController {
       const userId = req.user!.userId;
       const isAdmin = req.user!.role === UserRole.ADMIN;
 
+      console.log("REQ USER:", req.user);
+      console.log("USER ID:", userId);
+
       const bookings = isAdmin
         ? await bookingService.getAllBookings()
         : await bookingService.getBookingsByUser(userId);
 
+      console.log("BOOKINGS FOUND:", bookings.length);
+
       res.status(200).json({ data: bookings });
     } catch (error) {
+      console.error("GET BOOKINGS ERROR:", error);
       res.status(500).json({ error: "Failed to fetch bookings" });
     }
   }

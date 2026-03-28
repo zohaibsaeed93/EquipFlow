@@ -290,6 +290,8 @@ export class BookingService {
   }): Promise<Booking> {
     const { slotId, bookedBy, equipmentId } = data;
 
+    console.log("BOOK SLOT - bookedBy:", bookedBy);
+
     if (!slotId || !bookedBy || !equipmentId) {
       throw new HttpError(400, "slotId, bookedBy and equipmentId are required");
     }
@@ -371,13 +373,18 @@ export class BookingService {
       await manager.save(slot);
 
       // Create booking record
+      console.log("CREATING BOOKING RECORD - slotId:", slotId, "bookedBy:", bookedBy);
+      
       const booking = manager.getRepository(Booking).create({
         slotId,
         bookedBy,
         status: BookingStatus.BOOKED,
       });
 
-      return await manager.save(booking);
+      const savedBooking = await manager.save(booking);
+      console.log("SAVED BOOKING:", savedBooking.id, "bookedBy:", savedBooking.bookedBy);
+      
+      return savedBooking;
     });
   }
 
@@ -429,11 +436,14 @@ export class BookingService {
    * Get all bookings for a user (bookings they made)
    */
   async getBookingsByUser(userId: string): Promise<Booking[]> {
-    return await this.bookingRepository.find({
+    console.log("getBookingsByUser - userId:", userId);
+    const bookings = await this.bookingRepository.find({
       where: { bookedBy: userId },
-      relations: ["slot", "slot.user", "bookedByUser"],
+      relations: ["slot", "slot.user", "slot.equipment", "bookedByUser"],
       order: { createdAt: "DESC" },
     });
+    console.log("getBookingsByUser - found:", bookings.length);
+    return bookings;
   }
 
   /**
@@ -441,7 +451,7 @@ export class BookingService {
    */
   async getAllBookings(): Promise<Booking[]> {
     return await this.bookingRepository.find({
-      relations: ["slot", "slot.user", "bookedByUser"],
+      relations: ["slot", "slot.user", "slot.equipment", "bookedByUser"],
       order: { createdAt: "DESC" },
     });
   }
@@ -452,7 +462,7 @@ export class BookingService {
   async getBookingById(id: string): Promise<Booking | null> {
     return await this.bookingRepository.findOne({
       where: { id },
-      relations: ["slot", "slot.user", "bookedByUser"],
+      relations: ["slot", "slot.user", "slot.equipment", "bookedByUser"],
     });
   }
 }
