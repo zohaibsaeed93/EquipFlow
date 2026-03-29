@@ -213,7 +213,7 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
                     className="border-l min-h-[52px] p-1 transition-colors duration-200"
                     style={{
                       borderColor: "var(--divider)",
-                      cursor: cellSlots.length === 0 ? "pointer" : "default",
+                      cursor: cellSlots.length === 0 && onEmptyClick ? "pointer" : "default",
                     }}
                     onMouseEnter={(e) => {
                       if (cellSlots.length === 0) {
@@ -250,6 +250,7 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
                             borderColor: slot.isBooked
                               ? "var(--danger-muted)"
                               : "var(--success-muted)",
+                            cursor: "pointer",
                           }}
                         >
                           {format(new Date(slot.startTime), "h:mm a")}

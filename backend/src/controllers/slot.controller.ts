@@ -8,7 +8,7 @@ export class SlotController {
    */
   async createSlot(req: Request, res: Response): Promise<void> {
     try {
-      const { startTime, endTime } = req.body;
+      const { startTime, endTime, equipmentId } = req.body;
       const userId = req.user!.userId;
 
       if (!startTime || !endTime) {
@@ -31,6 +31,7 @@ export class SlotController {
         userId,
         startTime: parsedStart,
         endTime: parsedEnd,
+        equipmentId: equipmentId || undefined,
       });
 
       res.status(201).json({

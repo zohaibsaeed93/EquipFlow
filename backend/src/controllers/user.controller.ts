@@ -308,6 +308,7 @@ export class UserController {
         message: "Login successful",
         data: {
           user,
+          token,
         },
       });
     } catch (error) {

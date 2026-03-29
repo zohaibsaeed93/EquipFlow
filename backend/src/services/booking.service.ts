@@ -286,14 +286,14 @@ export class BookingService {
   async bookSlot(data: {
     slotId: string;
     bookedBy: string;
-    equipmentId: string;
+    equipmentId?: string;
   }): Promise<Booking> {
     const { slotId, bookedBy, equipmentId } = data;
 
     console.log("BOOK SLOT - bookedBy:", bookedBy);
 
-    if (!slotId || !bookedBy || !equipmentId) {
-      throw new HttpError(400, "slotId, bookedBy and equipmentId are required");
+    if (!slotId || !bookedBy) {
+      throw new HttpError(400, "slotId and bookedBy are required");
     }
 
     // Use a transaction to prevent race conditions
@@ -314,54 +314,64 @@ export class BookingService {
 
       this.validateFutureDate(slot.startTime);
 
-      const mainEquipmentId = await this.resolveMainEquipmentId(
-        manager,
-        equipmentId,
-      );
+      // Resolve equipment — use provided equipmentId or fall back to slot's equipmentId
+      const resolvedEquipmentId = equipmentId || slot.equipmentId;
 
-      const dependencyEquipmentIds = await this.resolveDependenciesRecursive(
-        manager,
-        mainEquipmentId,
-      );
-
-      const involvedEquipmentIds = [
-        ...new Set([mainEquipmentId, ...dependencyEquipmentIds]),
-      ];
-
-      await this.lockEquipmentSet(manager, involvedEquipmentIds);
-
-      await this.validateCertifications(manager, bookedBy, [
-        ...involvedEquipmentIds,
-      ]);
-
-      try {
-        await this.validateEquipmentAvailability(
+      if (resolvedEquipmentId) {
+        const mainEquipmentId = await this.resolveMainEquipmentId(
           manager,
-          involvedEquipmentIds,
-          slot.startTime,
-          slot.endTime,
+          resolvedEquipmentId,
         );
 
+        const dependencyEquipmentIds = await this.resolveDependenciesRecursive(
+          manager,
+          mainEquipmentId,
+        );
+
+        const involvedEquipmentIds = [
+          ...new Set([mainEquipmentId, ...dependencyEquipmentIds]),
+        ];
+
+        await this.lockEquipmentSet(manager, involvedEquipmentIds);
+
+        await this.validateCertifications(manager, bookedBy, [
+          ...involvedEquipmentIds,
+        ]);
+
+        try {
+          await this.validateEquipmentAvailability(
+            manager,
+            involvedEquipmentIds,
+            slot.startTime,
+            slot.endTime,
+          );
+
+          if (slot.isBooked) {
+            throw new HttpError(409, "This slot is already booked");
+          }
+        } catch (error) {
+          if (error instanceof HttpError && error.statusCode === 409) {
+            const suggestions = await this.findNextAvailableSlots({
+              manager,
+              equipmentIds: involvedEquipmentIds,
+              desiredStartTime: slot.startTime,
+              desiredEndTime: slot.endTime,
+              durationMs: slot.endTime.getTime() - slot.startTime.getTime(),
+            });
+
+            throw new HttpError(409, error.message, {
+              ...(error.details ?? {}),
+              suggestions,
+            });
+          }
+
+          throw error;
+        }
+      } else {
+        // No equipment — just check if slot is already booked
         if (slot.isBooked) {
           throw new HttpError(409, "This slot is already booked");
         }
-      } catch (error) {
-        if (error instanceof HttpError && error.statusCode === 409) {
-          const suggestions = await this.findNextAvailableSlots({
-            manager,
-            equipmentIds: involvedEquipmentIds,
-            desiredStartTime: slot.startTime,
-            desiredEndTime: slot.endTime,
-            durationMs: slot.endTime.getTime() - slot.startTime.getTime(),
-          });
-
-          throw new HttpError(409, error.message, {
-            ...(error.details ?? {}),
-            suggestions,
-          });
-        }
-
-        throw error;
       }
 
       if (slot.userId === bookedBy) {
@@ -374,7 +384,7 @@ export class BookingService {
 
       // Create booking record
       console.log("CREATING BOOKING RECORD - slotId:", slotId, "bookedBy:", bookedBy);
-      
+
       const booking = manager.getRepository(Booking).create({
         slotId,
         bookedBy,
@@ -383,7 +393,7 @@ export class BookingService {
 
       const savedBooking = await manager.save(booking);
       console.log("SAVED BOOKING:", savedBooking.id, "bookedBy:", savedBooking.bookedBy);
-      
+
       return savedBooking;
     });
   }

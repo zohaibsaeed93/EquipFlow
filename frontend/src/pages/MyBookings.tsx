@@ -112,6 +112,12 @@ export const MyBookings: React.FC = () => {
                     Equipment
                   </th>
                   <th
+                    className="px-6 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider"
+                    style={{ color: "var(--text-tertiary)" }}
+                  >
+                    Booked By
+                  </th>
+                  <th
                     className="px-6 py-3.5 text-right text-[11px] font-semibold uppercase tracking-wider"
                     style={{ color: "var(--text-tertiary)" }}
                   >
@@ -123,7 +129,7 @@ export const MyBookings: React.FC = () => {
                 {isSlotsLoading ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="px-6 py-12 text-center text-sm"
                       style={{ color: "var(--text-tertiary)" }}
                     >
@@ -133,7 +139,7 @@ export const MyBookings: React.FC = () => {
                 ) : allSlots.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="px-6 py-12 text-center text-sm"
                       style={{ color: "var(--text-tertiary)" }}
                     >
@@ -176,6 +182,12 @@ export const MyBookings: React.FC = () => {
                           (slot.equipmentId
                             ? equipmentMap[slot.equipmentId]
                             : "No equipment")}
+                      </td>
+                      <td
+                        className="px-6 py-4 whitespace-nowrap text-sm"
+                        style={{ color: "var(--text-secondary)" }}
+                      >
+                        {slot.bookings?.[0]?.bookedByUser?.name || "-"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <Button

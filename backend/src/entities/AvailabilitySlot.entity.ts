@@ -5,11 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToOne,
+  OneToMany,
   JoinColumn,
 } from "typeorm";
 import { User } from "./User.entity";
 import { Equipment } from "./Equipment.entity";
+import { Booking } from "./Booking.entity";
 
 @Entity("availability_slots")
 export class AvailabilitySlot {
@@ -38,6 +39,9 @@ export class AvailabilitySlot {
 
   @Column({ default: false })
   isBooked: boolean;
+
+  @OneToMany(() => Booking, (booking: Booking) => booking.slot)
+  bookings: Booking[];
 
   @CreateDateColumn()
   createdAt: Date;

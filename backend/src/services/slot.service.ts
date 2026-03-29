@@ -16,8 +16,9 @@ export class SlotService {
     userId: string;
     startTime: Date;
     endTime: Date;
+    equipmentId?: string;
   }): Promise<AvailabilitySlot> {
-    const { userId, startTime, endTime } = data;
+    const { userId, startTime, endTime, equipmentId } = data;
 
     // Validate startTime is before endTime
     if (startTime >= endTime) {
@@ -45,6 +46,7 @@ export class SlotService {
       userId,
       startTime,
       endTime,
+      equipmentId: equipmentId || undefined,
     });
 
     return await this.slotRepository.save(slot);
@@ -75,7 +77,7 @@ export class SlotService {
 
     return await this.slotRepository.find({
       where,
-      relations: ["user", "equipment"],
+      relations: ["user", "equipment", "bookings", "bookings.bookedByUser"],
       order: { startTime: "ASC" },
     });
   }

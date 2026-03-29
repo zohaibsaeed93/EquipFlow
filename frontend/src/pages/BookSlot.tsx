@@ -12,6 +12,7 @@ import {
 import type { AvailabilitySlot, Equipment } from "../types/scheduling.types";
 import { useAuth } from "../hooks/useAuth";
 import { Badge } from "../components/ui/Badge";
+import toast from "react-hot-toast";
 
 export const BookSlot: React.FC = () => {
   const { user } = useAuth();
@@ -60,6 +61,11 @@ export const BookSlot: React.FC = () => {
 
   const handleSlotClick = (slot: AvailabilitySlot) => {
     if (isAdmin) return;
+
+    if (slot.isBooked) {
+      toast.error("This slot is already booked");
+      return;
+    }
 
     setSelectedSlot(slot);
     setBookingModalOpen(true);

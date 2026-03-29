@@ -9,6 +9,7 @@ export interface AvailabilitySlot {
     name: string;
     email?: string;
   };
+  bookings?: Booking[];
   startTime: string;
   endTime: string;
   isBooked: boolean;
