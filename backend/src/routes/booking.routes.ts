@@ -1,15 +1,14 @@
 import { Router } from "express";
 import { bookingController } from "../controllers/booking.controller";
-import { authMiddleware, authorize } from "../middlewares/auth.middleware";
-import { UserRole } from "../entities/User.entity";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
 
 // All booking routes require authentication
 router.use(authMiddleware);
 
-// Create a new booking — user only (admins manage equipment, not book it)
-router.post("/", authorize(UserRole.USER), (req, res) => bookingController.createBooking(req, res));
+// Create a new booking
+router.post("/", (req, res) => bookingController.createBooking(req, res));
 
 // Get bookings (admins see all, users see their own)
 router.get("/", (req, res) => bookingController.getBookings(req, res));

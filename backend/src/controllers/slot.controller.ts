@@ -8,6 +8,8 @@ export class SlotController {
    */
   async createSlot(req: Request, res: Response): Promise<void> {
     try {
+      console.log("CREATE SLOT USER:", req.user);
+
       const { startTime, endTime, equipmentId } = req.body;
       const userId = req.user!.userId;
 
@@ -28,10 +30,10 @@ export class SlotController {
       }
 
       const slot = await slotService.createSlot({
-        userId,
         startTime: parsedStart,
         endTime: parsedEnd,
         equipmentId: equipmentId || undefined,
+        userId,
       });
 
       res.status(201).json({

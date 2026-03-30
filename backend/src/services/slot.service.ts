@@ -43,13 +43,16 @@ export class SlotService {
     }
 
     const slot = this.slotRepository.create({
-      userId,
       startTime,
       endTime,
       equipmentId: equipmentId || undefined,
+      userId,
     });
 
-    return await this.slotRepository.save(slot);
+    const savedSlot = await this.slotRepository.save(slot);
+    console.log("SAVED SLOT USER:", savedSlot.userId);
+
+    return savedSlot;
   }
 
   /**

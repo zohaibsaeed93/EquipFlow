@@ -300,13 +300,10 @@ export class BookingService {
 
     // Use a transaction to prevent race conditions
     return await AppDataSource.transaction(async (manager) => {
-      // Lock the slot row for update
-      const slot = await manager
-        .getRepository(AvailabilitySlot)
-        .createQueryBuilder("slot")
-        .setLock("pessimistic_write")
-        .where("slot.id = :slotId", { slotId })
-        .getOne();
+      const slot = await manager.getRepository(AvailabilitySlot).findOne({
+        where: { id: slotId },
+        relations: ["user"],
+      });
 
       if (!slot) {
         throw new HttpError(400, "Slot not found");
@@ -376,7 +373,11 @@ export class BookingService {
         }
       }
 
-      if (slot.userId === bookedBy) {
+      console.log("SLOT OWNER (relation):", slot.user?.id);
+      console.log("SLOT OWNER (column):", slot.userId);
+      console.log("BOOKING USER:", bookedBy);
+
+      if (slot.user?.id === bookedBy) {
         throw new HttpError(400, "You cannot book your own availability slot");
       }
 
