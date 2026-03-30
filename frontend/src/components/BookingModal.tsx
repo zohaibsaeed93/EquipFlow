@@ -32,6 +32,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
   const handleConfirm = async () => {
     setBookingError("");
+    console.log("BOOKING CLICKED:", slot.id);
     createBooking.mutate(
       {
         slotId: slot.id,

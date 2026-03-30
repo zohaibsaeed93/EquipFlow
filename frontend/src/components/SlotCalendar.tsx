@@ -102,8 +102,18 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
             e.currentTarget.style.borderColor = "var(--border)";
           }}
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
         </button>
         <h3
@@ -129,8 +139,18 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
             e.currentTarget.style.borderColor = "var(--border)";
           }}
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </button>
       </div>
@@ -213,7 +233,10 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
                     className="border-l min-h-[52px] p-1 transition-colors duration-200"
                     style={{
                       borderColor: "var(--divider)",
-                      cursor: cellSlots.length === 0 && onEmptyClick ? "pointer" : "default",
+                      cursor:
+                        cellSlots.length === 0 && onEmptyClick
+                          ? "pointer"
+                          : "default",
                     }}
                     onMouseEnter={(e) => {
                       if (cellSlots.length === 0) {
@@ -235,10 +258,7 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
                       return (
                         <button
                           key={slot.id}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onSlotClick(slot);
-                          }}
+                          onClick={() => onSlotClick?.(slot)}
                           className="w-full text-left text-[11px] px-2 py-1.5 rounded-lg mb-0.5 truncate font-medium transition-all duration-200 border"
                           style={{
                             backgroundColor: slot.isBooked

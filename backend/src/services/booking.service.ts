@@ -290,6 +290,8 @@ export class BookingService {
   }): Promise<Booking> {
     const { slotId, bookedBy, equipmentId } = data;
 
+    console.log("BOOK SLOT INPUT:", { slotId, bookedBy });
+
     console.log("BOOK SLOT - bookedBy:", bookedBy);
 
     if (!slotId || !bookedBy) {
@@ -378,21 +380,18 @@ export class BookingService {
         throw new HttpError(400, "You cannot book your own availability slot");
       }
 
-      // Mark slot as booked
-      slot.isBooked = true;
-      await manager.save(slot);
-
       // Create booking record
-      console.log("CREATING BOOKING RECORD - slotId:", slotId, "bookedBy:", bookedBy);
-
-      const booking = manager.getRepository(Booking).create({
+      const booking = manager.create(Booking, {
         slotId,
         bookedBy,
-        status: BookingStatus.BOOKED,
+        status: "booked" as BookingStatus,
       });
 
       const savedBooking = await manager.save(booking);
-      console.log("SAVED BOOKING:", savedBooking.id, "bookedBy:", savedBooking.bookedBy);
+      console.log("SAVED BOOK:", savedBooking);
+
+      slot.isBooked = true;
+      await manager.save(slot);
 
       return savedBooking;
     });
@@ -446,14 +445,27 @@ export class BookingService {
    * Get all bookings for a user (bookings they made)
    */
   async getBookingsByUser(userId: string): Promise<Booking[]> {
-    console.log("getBookingsByUser - userId:", userId);
+    console.log("QUERY USER ID:", userId);
+
     const bookings = await this.bookingRepository.find({
       where: { bookedBy: userId },
-      relations: ["slot", "slot.user", "slot.equipment", "bookedByUser"],
+      relations: ["slot", "slot.equipment", "bookedByUser"],
       order: { createdAt: "DESC" },
     });
-    console.log("getBookingsByUser - found:", bookings.length);
-    return bookings;
+
+    if (bookings.length > 0) {
+      return bookings;
+    }
+
+    const fallbackBookings = await this.bookingRepository.find({
+      where: { bookedByUser: { id: userId } },
+      relations: ["slot", "slot.equipment", "bookedByUser"],
+      order: { createdAt: "DESC" },
+    });
+
+    console.log("FALLBACK QUERY COUNT:", fallbackBookings.length);
+
+    return fallbackBookings;
   }
 
   /**

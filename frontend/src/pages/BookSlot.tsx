@@ -63,7 +63,7 @@ export const BookSlot: React.FC = () => {
     if (isAdmin) return;
 
     if (slot.isBooked) {
-      toast.error("This slot is already booked");
+      toast.error("Slot already booked");
       return;
     }
 
