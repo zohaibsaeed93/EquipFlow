@@ -72,3 +72,30 @@ export interface CreateEquipmentData {
   certificationIds?: string[];
   dependencyIds?: string[];
 }
+
+// ── Slot Requests ─────────────────────────────────────────
+
+export type SlotRequestStatus = "pending" | "approved" | "rejected";
+
+export interface SlotRequest {
+  id: string;
+  requestedBy: string;
+  requestedByUser?: {
+    id: string;
+    username: string;
+    name: string;
+  };
+  equipmentId?: string;
+  equipment?: Equipment;
+  startTime: string;
+  endTime: string;
+  status: SlotRequestStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSlotRequestData {
+  startTime: string;
+  endTime: string;
+  equipmentId?: string;
+}

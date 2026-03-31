@@ -3,13 +3,15 @@ import { Navbar } from "../components/Navbar";
 import { SlotCalendar } from "../components/SlotCalendar";
 import { BookingModal } from "../components/BookingModal";
 import { CreateSlotModal } from "../components/CreateSlotModal";
+import { SlotRequestModal } from "../components/SlotRequestModal";
 import {
   useAvailableSlots,
   useAllSlots,
   useEquipment,
   useUserCertifications,
+  useSlotRequests,
 } from "../hooks/useScheduling";
-import type { AvailabilitySlot, Equipment } from "../types/scheduling.types";
+import type { AvailabilitySlot, Equipment, SlotRequest } from "../types/scheduling.types";
 import { useAuth } from "../hooks/useAuth";
 import { Badge } from "../components/ui/Badge";
 import toast from "react-hot-toast";
@@ -26,6 +28,9 @@ export const BookSlot: React.FC = () => {
   const { data: userCertifications = [] } = useUserCertifications(
     user?.id || "",
   );
+  // Slot requests for admin calendar
+  const { data: slotRequests = [] } = useSlotRequests();
+
   const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(
     null,
   );
@@ -37,6 +42,10 @@ export const BookSlot: React.FC = () => {
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(
     null,
   );
+  const [selectedRequest, setSelectedRequest] = useState<SlotRequest | null>(
+    null,
+  );
+  const [requestModalOpen, setRequestModalOpen] = useState(false);
 
   const equipmentMap = React.useMemo(
     () =>
@@ -322,8 +331,13 @@ export const BookSlot: React.FC = () => {
 
             <SlotCalendar
               slots={filteredSlots}
+              slotRequests={isAdmin ? slotRequests : undefined}
               isLoading={isLoading}
               onSlotClick={handleSlotClick}
+              onRequestClick={isAdmin ? (req) => {
+                setSelectedRequest(req);
+                setRequestModalOpen(true);
+              } : undefined}
               onEmptyClick={isAdmin ? handleEmptyClick : undefined}
               equipmentMap={equipmentMap}
             />
@@ -347,6 +361,17 @@ export const BookSlot: React.FC = () => {
             }}
             defaultDate={createDefaultDate}
             equipmentOptions={equipment}
+          />
+        )}
+
+        {isAdmin && (
+          <SlotRequestModal
+            isOpen={requestModalOpen}
+            onClose={() => {
+              setRequestModalOpen(false);
+              setSelectedRequest(null);
+            }}
+            request={selectedRequest}
           />
         )}
       </div>

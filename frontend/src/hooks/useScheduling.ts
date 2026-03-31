@@ -7,6 +7,7 @@ import type {
   CreateBookingData,
   CreateEquipmentData,
   Equipment,
+  CreateSlotRequestData,
 } from "../types/scheduling.types";
 
 // ── Query Keys ───────────────────────────────────────────
@@ -26,6 +27,10 @@ export const equipmentKeys = {
   all: ["equipment"] as const,
   certifications: ["certifications"] as const,
   userCerts: (userId: string) => ["certifications", "user", userId] as const,
+};
+
+export const slotRequestKeys = {
+  all: ["slot-requests"] as const,
 };
 
 // ── Slot Hooks ───────────────────────────────────────────
@@ -175,3 +180,45 @@ export function useCancelBooking() {
     },
   });
 }
+
+// ── Slot Request Hooks ───────────────────────────────────
+
+export function useSlotRequests() {
+  return useQuery({
+    queryKey: slotRequestKeys.all,
+    queryFn: () => schedulingService.getSlotRequests(),
+  });
+}
+
+export function useCreateSlotRequest() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateSlotRequestData) =>
+      schedulingService.createSlotRequest(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: slotRequestKeys.all });
+    },
+  });
+}
+
+export function useApproveSlotRequest() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => schedulingService.approveSlotRequest(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: slotRequestKeys.all });
+      qc.invalidateQueries({ queryKey: ["slots"] });
+    },
+  });
+}
+
+export function useRejectSlotRequest() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => schedulingService.rejectSlotRequest(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: slotRequestKeys.all });
+    },
+  });
+}
+

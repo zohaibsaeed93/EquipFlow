@@ -3,6 +3,7 @@ import userRoutes from "./user.routes";
 import slotRoutes from "./slot.routes";
 import bookingRoutes from "./booking.routes";
 import equipmentRoutes from "./equipment.routes";
+import slotRequestRoutes from "./slotRequest.routes";
 import { equipmentController } from "../controllers/equipment.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 
@@ -13,6 +14,7 @@ router.use("/users", userRoutes);
 router.use("/slots", slotRoutes);
 router.use("/bookings", bookingRoutes);
 router.use("/equipment", equipmentRoutes);
+router.use("/slot-requests", slotRequestRoutes);
 
 // GET /api/certifications
 router.get("/certifications", authMiddleware, (req, res) =>

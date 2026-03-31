@@ -7,12 +7,14 @@ import {
   addWeeks,
   subWeeks,
 } from "date-fns";
-import type { AvailabilitySlot } from "../types/scheduling.types";
+import type { AvailabilitySlot, SlotRequest } from "../types/scheduling.types";
 
 interface SlotCalendarProps {
   slots: AvailabilitySlot[];
+  slotRequests?: SlotRequest[];
   isLoading: boolean;
   onSlotClick: (slot: AvailabilitySlot) => void;
+  onRequestClick?: (request: SlotRequest) => void;
   onEmptyClick?: (date: Date) => void;
   equipmentMap?: Record<string, string>;
 }
@@ -21,8 +23,10 @@ const HOURS = Array.from({ length: 13 }, (_, i) => i + 7); // 7 AM – 7 PM
 
 export const SlotCalendar: React.FC<SlotCalendarProps> = ({
   slots,
+  slotRequests = [],
   isLoading,
   onSlotClick,
+  onRequestClick,
   onEmptyClick,
   equipmentMap,
 }) => {
@@ -46,6 +50,20 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
     }
     return map;
   }, [slots]);
+
+  // Separate map for slot requests — never merged with slots
+  const requestsByDayHour = useMemo(() => {
+    const map = new Map<string, SlotRequest[]>();
+    for (const req of slotRequests) {
+      if (req.status !== "pending") continue; // only show pending on calendar
+      const d = new Date(req.startTime);
+      const key = `${format(d, "yyyy-MM-dd")}-${d.getHours()}`;
+      const arr = map.get(key) || [];
+      arr.push(req);
+      map.set(key, arr);
+    }
+    return map;
+  }, [slotRequests]);
 
   if (isLoading) {
     return (
@@ -219,12 +237,13 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
               {days.map((day) => {
                 const key = `${format(day, "yyyy-MM-dd")}-${hour}`;
                 const cellSlots = slotsByDayHour.get(key) || [];
+                const cellRequests = requestsByDayHour.get(key) || [];
 
                 return (
                   <div
                     key={key}
                     onClick={() => {
-                      if (cellSlots.length === 0 && onEmptyClick) {
+                      if (cellSlots.length === 0 && cellRequests.length === 0 && onEmptyClick) {
                         const d = new Date(day);
                         d.setHours(hour, 0, 0, 0);
                         onEmptyClick(d);
@@ -234,12 +253,12 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
                     style={{
                       borderColor: "var(--divider)",
                       cursor:
-                        cellSlots.length === 0 && onEmptyClick
+                        cellSlots.length === 0 && cellRequests.length === 0 && onEmptyClick
                           ? "pointer"
                           : "default",
                     }}
                     onMouseEnter={(e) => {
-                      if (cellSlots.length === 0) {
+                      if (cellSlots.length === 0 && cellRequests.length === 0) {
                         e.currentTarget.style.backgroundColor =
                           "var(--accent-muted)";
                       }
@@ -248,6 +267,7 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
                       e.currentTarget.style.backgroundColor = "transparent";
                     }}
                   >
+                    {/* Regular slots (green/red) */}
                     {cellSlots.map((slot) => {
                       const equipmentLabel =
                         slot.equipment?.name ||
@@ -258,7 +278,10 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
                       return (
                         <button
                           key={slot.id}
-                          onClick={() => onSlotClick?.(slot)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSlotClick?.(slot);
+                          }}
                           className="w-full text-left text-[11px] px-2 py-1.5 rounded-lg mb-0.5 truncate font-medium transition-all duration-200 border"
                           style={{
                             backgroundColor: slot.isBooked
@@ -288,6 +311,41 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
                         </button>
                       );
                     })}
+
+                    {/* Slot requests (yellow) — separate from slots */}
+                    {cellRequests.map((req) => {
+                      const equipmentLabel =
+                        req.equipment?.name ||
+                        (req.equipmentId
+                          ? equipmentMap?.[req.equipmentId]
+                          : undefined);
+
+                      return (
+                        <button
+                          key={`req-${req.id}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRequestClick?.(req);
+                          }}
+                          className="w-full text-left text-[11px] px-2 py-1.5 rounded-lg mb-0.5 truncate font-medium transition-all duration-200 border"
+                          style={{
+                            backgroundColor: "#fef3c7",
+                            color: "#92400e",
+                            borderColor: "#fde68a",
+                            cursor: onRequestClick ? "pointer" : "default",
+                          }}
+                        >
+                          {format(new Date(req.startTime), "h:mm a")}
+                          {" · Requested by: "}
+                          {req.requestedByUser?.name || "User"}
+                          {equipmentLabel && (
+                            <span className="ml-1 opacity-70">
+                              · {equipmentLabel}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 );
               })}
@@ -298,3 +356,5 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
     </div>
   );
 };
+
+

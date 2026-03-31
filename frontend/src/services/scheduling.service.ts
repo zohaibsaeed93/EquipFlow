@@ -7,6 +7,8 @@ import type {
   Equipment,
   Certification,
   CreateEquipmentData,
+  SlotRequest,
+  CreateSlotRequestData,
 } from "../types/scheduling.types";
 
 const api = apiService.getAxiosInstance();
@@ -85,4 +87,27 @@ export const schedulingService = {
     const res = await api.patch(`/bookings/${bookingId}/cancel`);
     return res.data.data;
   },
+
+  // ── Slot Requests ──────────────────────────────────────
+
+  async createSlotRequest(data: CreateSlotRequestData): Promise<SlotRequest> {
+    const res = await api.post("/slot-requests", data);
+    return res.data.data;
+  },
+
+  async getSlotRequests(): Promise<SlotRequest[]> {
+    const res = await api.get("/slot-requests");
+    return res.data.data;
+  },
+
+  async approveSlotRequest(id: string): Promise<SlotRequest> {
+    const res = await api.post(`/slot-requests/${id}/approve`);
+    return res.data.data;
+  },
+
+  async rejectSlotRequest(id: string): Promise<SlotRequest> {
+    const res = await api.post(`/slot-requests/${id}/reject`);
+    return res.data.data;
+  },
 };
+

@@ -12,7 +12,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard";
-import { AvailabilityManager } from "./pages/AvailabilityManager";
+import { RequestSlot } from "./pages/RequestSlot";
 import { BookSlot } from "./pages/BookSlot";
 import { MyBookings } from "./pages/MyBookings";
 import { EquipmentManager } from "./pages/EquipmentManager";
@@ -44,7 +44,7 @@ function App() {
                 path="/availability"
                 element={
                   <ProtectedRoute>
-                    <AvailabilityManager />
+                    <RequestSlot />
                   </ProtectedRoute>
                 }
               />

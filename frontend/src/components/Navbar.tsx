@@ -30,7 +30,7 @@ export const Navbar: React.FC = () => {
         { to: "/dashboard", label: "Dashboard", icon: "grid" },
         { to: "/book", label: "Book Equipment", icon: "calendar" },
         { to: "/bookings", label: "My Bookings", icon: "list" },
-        { to: "/availability", label: "Availability", icon: "clock" },
+        { to: "/availability", label: "Request Slot", icon: "clock" },
       ];
 
   const initials = (user?.name || "U")
