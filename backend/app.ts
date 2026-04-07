@@ -14,7 +14,11 @@ app.use(cookieParser());
 
 // CORS configuration for cookies
 app.use((req, res, next) => {
-  const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
+  const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://equip-flow-tau.vercel.app",
+  ];
   const origin = req.headers.origin;
   if (origin && allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
