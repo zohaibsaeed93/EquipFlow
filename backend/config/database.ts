@@ -9,11 +9,23 @@ export const AppDataSource = new DataSource({
   username: configService.database.username,
   password: configService.database.password,
   database: configService.database.database,
-  synchronize: configService.isDevelopment, // Auto-sync schema in development only
+  synchronize: configService.isDevelopment,
   logging: false,
-  entities: ["src/entities/**/*.ts"],
-  migrations: ["src/migrations/**/*.ts"],
-  subscribers: ["src/subscribers/**/*.ts"],
+  entities: [
+    configService.isProduction
+      ? "dist/src/entities/**/*.js"
+      : "src/entities/**/*.ts",
+  ],
+  migrations: [
+    configService.isProduction
+      ? "dist/src/migrations/**/*.js"
+      : "src/migrations/**/*.ts",
+  ],
+  subscribers: [
+    configService.isProduction
+      ? "dist/src/subscribers/**/*.js"
+      : "src/subscribers/**/*.ts",
+  ],
 });
 
 export const initializeDatabase = async (): Promise<void> => {
