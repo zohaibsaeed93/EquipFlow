@@ -105,6 +105,10 @@ export class SlotRequestService {
       throw new Error(`Cannot approve a request that is already ${request.status}`);
     }
 
+    if (request.startTime <= new Date()) {
+      throw new Error("Cannot approve a slot request in the past");
+    }
+
     // Check if a slot already exists at this time+equipment before creating
     await this.checkDuplicateSlot(request.startTime, request.endTime, request.equipmentId);
 

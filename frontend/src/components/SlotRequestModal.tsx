@@ -21,8 +21,14 @@ export const SlotRequestModal: React.FC<SlotRequestModalProps> = ({
   const rejectRequest = useRejectSlotRequest();
 
   if (!isOpen || !request) return null;
+  const isPastRequest = new Date(request.startTime) <= new Date();
 
   const handleApprove = async () => {
+    if (isPastRequest) {
+      toast.error("Past slot requests cannot be approved");
+      return;
+    }
+
     try {
       await approveRequest.mutateAsync(request.id);
       toast.success("Request approved — slot created!");
@@ -193,15 +199,27 @@ export const SlotRequestModal: React.FC<SlotRequestModalProps> = ({
               >
                 Status
               </span>
-              <span
-                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
-                style={{
-                  backgroundColor: "#fef3c7",
-                  color: "#92400e",
-                }}
-              >
-                ● Pending
-              </span>
+              {isPastRequest ? (
+                <span
+                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
+                  style={{
+                    backgroundColor: "#fee2e2",
+                    color: "#991b1b",
+                  }}
+                >
+                  ● Pending (Past)
+                </span>
+              ) : (
+                <span
+                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
+                  style={{
+                    backgroundColor: "#fef3c7",
+                    color: "#92400e",
+                  }}
+                >
+                  ● Pending
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -225,9 +243,13 @@ export const SlotRequestModal: React.FC<SlotRequestModalProps> = ({
           onClick={handleApprove}
           className="flex-1"
           isLoading={approveRequest.isPending}
-          disabled={isPending}
+          disabled={isPending || isPastRequest}
         >
-          {approveRequest.isPending ? "Approving..." : "✓ Approve"}
+          {approveRequest.isPending
+            ? "Approving..."
+            : isPastRequest
+              ? "Approval Unavailable"
+              : "✓ Approve"}
         </Button>
       </div>
     </Modal>
